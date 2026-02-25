@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "enabled": true,
+  "name": "npm test",
+  "description": "npm test",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "npm test"
+  },
+  "workspaceFolderName": "oclifLearn",
+  "shortName": "npm-test"
+}

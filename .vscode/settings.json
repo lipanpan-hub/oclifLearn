@@ -13,7 +13,7 @@
         // "**/downloads": true,
         "**/eggs": true,
         "**/.eggs": true,
-        "**/lib": true,
+        // "**/lib": true,
         "**/lib64": true,
         "**/parts": true,
         "**/sdist": true,

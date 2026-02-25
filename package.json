@@ -1,12 +1,12 @@
 {
-  "name": "oclifLearn",
+  "name": "oclif-learn",
   "description": "A new CLI generated with oclif",
   "version": "0.0.0",
   "author": "lipanpan-hub",
   "bin": {
     "oclifLearn": "./bin/run.js"
   },
-  "bugs": "https://github.com/test/oclifLearn/issues",
+  "bugs": "https://github.com/lipanpan-hub/oclifLearn/issues",
   "dependencies": {
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
@@ -37,7 +37,7 @@
     "./dist",
     "./oclif.manifest.json"
   ],
-  "homepage": "https://github.com/test/oclifLearn",
+  "homepage": "https://github.com/lipanpan-hub/oclifLearn",
   "keywords": [
     "oclif"
   ],
@@ -59,7 +59,7 @@
       }
     }
   },
-  "repository": "test/oclifLearn",
+  "repository": "lipanpan-hub/oclifLearn",
   "scripts": {
     "build": "shx rm -rf dist && tsc -b",
     "lint": "eslint",
