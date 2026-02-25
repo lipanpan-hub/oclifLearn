@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "author": "lipanpan-hub",
   "bin": {
-    "oclifLearn": "./bin/run.js"
+    "oclifLearn": "./bin/run.js",
+    "ofl": "./bin/run.js"
   },
   "bugs": "https://github.com/lipanpan-hub/oclifLearn/issues",
   "dependencies": {
+    "@inquirer/prompts": "^8.3.0",
     "@oclif/core": "^4",
     "@oclif/plugin-help": "^6",
     "@oclif/plugin-plugins": "^5"
@@ -61,7 +63,7 @@
   },
   "repository": "lipanpan-hub/oclifLearn",
   "scripts": {
-    "build": "shx rm -rf dist && tsc -b",
+    "build": "shx rm -rf dist tsconfig.tsbuildinfo && tsc -b",
     "lint": "eslint",
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "npm run lint",

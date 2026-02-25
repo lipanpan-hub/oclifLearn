@@ -18,5 +18,7 @@ inclusion: always
 - 当一个函数中存在多个功能相对独立的代码块的时候,应该使用 region folding comments 进行分块组织代码,使其更加易读和维护
 - 如果文件当中已经存在 一些 region folding comments，生成新代码的时候应该考虑是否放置在已经存在的 region 内部
 
--当发现bug时，首先编写一个能够重现该bug的测试放置到test文件夹中 ，然后不断修复它，直到测试通过为止
--每次我纠正你之后，应当总结经验放置到 .kiro\steering\agent.md 文件当中，防止以后再犯同样的错误 
+- 当发现bug时，首先编写一个能够重现该bug的测试放置到test文件夹中 ，然后不断修复它，直到测试通过为止
+- 每次我纠正你之后，应当总结经验放置到 .kiro\steering\agent.md 文件当中，防止以后再犯同样的错误 
+
+- 不要在未经允许的情况下随意创建Markdown文件 

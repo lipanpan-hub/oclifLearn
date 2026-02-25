@@ -16,7 +16,7 @@
         // "**/lib": true,
         "**/lib64": true,
         "**/parts": true,
-        "**/sdist": true,
+        // "**/sdist": true,
         "**/var": true,
         "**/wheels": true,
         "**/*.egg-info": true,
