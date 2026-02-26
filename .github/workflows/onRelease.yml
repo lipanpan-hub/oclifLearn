@@ -1,21 +1,36 @@
+# 工作流名称：发布到 NPM
 name: publish
 
+# 触发条件：当 GitHub Release 被发布时自动执行
 on:
   release:
     types: [released]
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 使用 Ubuntu 最新版本作为运行环境
     steps:
+      # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
+      
+      # 步骤2：设置 Node.js 环境，使用最新版本
       - uses: actions/setup-node@v4
         with:
           node-version: latest
+      
+      # 步骤3：安装项目依赖
       - run: npm install
+      
+      # 步骤4：构建项目（编译 TypeScript 代码）
       - run: npm run build
+      
+      # 步骤5：执行打包前的准备工作（生成 oclif manifest 等）
       - run: npm run prepack
+      
+      # 步骤6：发布到 NPM 仓库
       - uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c
         with:
-          token: ${{ secrets.NPM_TOKEN }}
+          token: ${{ secrets.NPM_TOKEN }} # 使用 NPM Token 进行认证
+      
+      # 步骤7：执行打包后的清理工作
       - run: npm run postpack

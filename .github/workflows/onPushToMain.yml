@@ -1,56 +1,76 @@
-# test
+# 工作流名称：版本管理、标签创建和 GitHub Release 发布
 name: version, tag and github release
 
+# 触发条件：当代码推送到 main 分支时自动执行
 on:
   push:
     branches: [main]
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # 使用 Ubuntu 最新版本作为运行环境
     steps:
+      # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
+      
+      # 步骤2：设置 Node.js 环境
       - uses: actions/setup-node@v4
+      
+      # 步骤3：检查当前版本是否已存在
       - name: Check if version already exists
-        id: version-check
+        id: version-check # 定义步骤 ID，用于后续步骤引用输出
         run: |
+          # 从 package.json 读取当前版本号
           package_version=$(node -p "require('./package.json').version")
+          # 通过 GitHub API 检查该版本的 release 是否已存在
           exists=$(gh api repos/${{ github.repository }}/releases/tags/v$package_version >/dev/null 2>&1 && echo "true" || echo "")
 
           if [ -n "$exists" ];
           then
+            # 如果版本已存在，输出警告信息并跳过后续步骤
             echo "Version v$package_version already exists"
             echo "::warning file=package.json,line=1::Version v$package_version already exists - no release will be created. If you want to create a new release, please update the version in package.json and push again."
             echo "skipped=true" >> $GITHUB_OUTPUT
           else
+            # 如果版本不存在，准备创建新的 release
             echo "Version v$package_version does not exist. Creating release..."
             echo "skipped=false" >> $GITHUB_OUTPUT
             echo "tag=v$package_version" >> $GITHUB_OUTPUT
           fi
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # 使用 GitHub Token 进行 API 认证
+      
+      # 步骤4：配置 Git 用户信息（仅在版本不存在时执行）
       - name: Setup git
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: |
           git config --global user.email ${{ secrets.GH_EMAIL }}
           git config --global user.name ${{ secrets.GH_USERNAME }}
+      
+      # 步骤5：生成 oclif README 文档（仅在版本不存在时执行）
       - name: Generate oclif README
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         id: oclif-readme
         run: |
+          # 安装依赖
           npm install
+          # 执行 oclif readme 命令自动生成/更新 README.md
           npm exec oclif readme
+          # 检查是否有文件变更
           if [ -n "$(git status --porcelain)" ]; then
+            # 如果 README.md 有更新，提交并推送到远程仓库
             git add .
             git commit -am "chore: update README.md"
             git push -u origin ${{ github.ref_name }}
           fi
+      
+      # 步骤6：创建 GitHub Release（仅在版本不存在时执行）
       - name: Create Github Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         with:
-          name: ${{ steps.version-check.outputs.tag }}
-          tag: ${{ steps.version-check.outputs.tag }}
-          commit: ${{ github.ref_name }}
-          token: ${{ secrets.GH_TOKEN }}
-          skipIfReleaseExists: true
+          name: ${{ steps.version-check.outputs.tag }} # Release 名称
+          tag: ${{ steps.version-check.outputs.tag }} # Git 标签名称
+          commit: ${{ github.ref_name }} # 关联的提交分支
+          token: ${{ secrets.GH_TOKEN }} # GitHub Token
+          skipIfReleaseExists: true # 如果 Release 已存在则跳过

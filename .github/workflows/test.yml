@@ -1,4 +1,9 @@
+# 工作流名称：自动化测试
 name: tests
+
+# 触发条件：
+# 1. 推送到除 main 分支外的其他分支时自动执行
+# 2. 支持手动触发
 on:
   push:
     branches-ignore: [main]
@@ -6,18 +11,29 @@ on:
 
 jobs:
   unit-tests:
+    # 测试策略：使用矩阵构建在多个环境下运行测试
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest']
-        node_version: [lts/-1, lts/*, latest]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+        os: ['ubuntu-latest', 'windows-latest'] # 在 Ubuntu 和 Windows 系统上测试
+        node_version: [lts/-1, lts/*, latest] # 测试三个 Node.js 版本：上一个 LTS、当前 LTS、最新版
+      fail-fast: false # 某个环境测试失败时不中断其他环境的测试
+    
+    runs-on: ${{ matrix.os }} # 使用矩阵中定义的操作系统
     steps:
+      # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
+      
+      # 步骤2：设置 Node.js 环境
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node_version }}
-          cache: npm
+          node-version: ${{ matrix.node_version }} # 使用矩阵中定义的 Node.js 版本
+          cache: npm # 启用 npm 依赖缓存以加速构建
+      
+      # 步骤3：安装项目依赖
       - run: npm install
+      
+      # 步骤4：构建项目（编译 TypeScript 代码）
       - run: npm run build
+      
+      # 步骤5：运行单元测试
       - run: npm run test
