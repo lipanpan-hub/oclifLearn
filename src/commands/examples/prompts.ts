@@ -16,7 +16,7 @@ export default class PromptsExample extends Command {
 
   static examples = [
     '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --skip-prompts',
+    '<%= config.bin %> <%= command.id %> --skipPrompts',
   ]
 
   static flags = {

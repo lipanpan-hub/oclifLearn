@@ -48,10 +48,7 @@ export abstract class BaseCommand extends Command {
   // #endregion
 
   // #region 初始化方法
-  /**
-   * 在命令执行前初始化
-   * 所有子命令都会自动调用这个方法
-   */
+  // 在命令执行前初始化 所有子命令都会自动调用这个方法
   async init(): Promise<void> {
     await super.init()
 
@@ -66,9 +63,7 @@ export abstract class BaseCommand extends Command {
   // #endregion
 
   // #region 清理方法
-  /**
-   * 在命令执行后清理资源
-   */
+  // 在命令执行后清理资源
   async finally(error?: Error): Promise<void> {
     // 如果有错误，记录错误日志
     if (error) {
@@ -83,9 +78,7 @@ export abstract class BaseCommand extends Command {
   // #endregion
 
   // #region 辅助方法
-  /**
-   * 初始化日志记录器
-   */
+  // 初始化日志记录器
   private initLogger(flags: {
     verbose?: boolean
     quiet?: boolean
@@ -148,6 +141,9 @@ export abstract class BaseCommand extends Command {
   // #endregion
 }
 // #endregion
+
+
+
 
 // #region 示例子命令
 /**

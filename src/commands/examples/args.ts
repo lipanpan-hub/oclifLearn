@@ -27,7 +27,7 @@ export default class ArgsExample extends Command {
     // #region 必填参数
     // 第一个位置参数：操作类型
     action: Args.string({
-      description: '要执行的操作 (create/update/delete)',
+      description: '要执行的操作',
       required: true, // 必填参数
       options: ['create', 'update', 'delete'], // 限定可选值
     }),
@@ -84,6 +84,8 @@ export default class ArgsExample extends Command {
   }
 
   async run(): Promise<void> {
+    // 解析命令行参数：this.parse() 会根据 static args 和 static flags 的定义解析用户输入
+    // this.parse() 返回的是 ParserOutput 类型的对象
     const {args, flags} = await this.parse(ArgsExample)
 
     // #region 输出解析结果
