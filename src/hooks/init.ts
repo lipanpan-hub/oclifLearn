@@ -12,6 +12,10 @@
  */
 
 import {Hook} from '@oclif/core'
+import makeDebug from 'debug'
+
+// 创建 debug 实例，命名空间为 'oclifLearn:hooks:init'
+// const debug = makeDebug('oclifLearn:hooks:init')
 
 /**
  * Init Hook
@@ -42,10 +46,17 @@ const hook: Hook<'init'> = async function (options) {
   // #endregion
 
   // #region 日志记录
-  // 记录命令执行信息
+  // 使用 debug 记录命令执行信息
+  // 需要设置 DEBUG=oclifLearn:* 或 DEBUG=* 才能看到输出
   if (options.id) {
     this.debug(`正在执行命令: ${options.id}`)
   }
+
+  // 如果想要总是输出，可以使用 this.log
+  // this.log(`正在执行命令: ${options.id}`)
+
+  // 如果想要输出警告，可以使用 this.warn
+  // this.warn(`正在执行命令: ${options.id}`)
   // #endregion
 
   // #region 性能监控

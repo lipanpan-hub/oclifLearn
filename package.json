@@ -5,20 +5,27 @@
   "author": "lipanpan-hub",
   "bin": {
     "oclifLearn": "./bin/run.js",
-    "ofl": "./bin/run.js"
+    "ofl": "./bin/run.js",
+    "ofld": "./bin/dev.js"
   },
   "bugs": "https://github.com/lipanpan-hub/oclifLearn/issues",
   "dependencies": {
     "@inquirer/prompts": "^8.3.0",
     "@oclif/core": "^4",
+    "@oclif/plugin-autocomplete": "^3.2.40",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5"
+    "@oclif/plugin-not-found": "^3.2.74",
+    "@oclif/plugin-plugins": "^5",
+    "@oclif/plugin-update": "^4.7.19",
+    "@oclif/plugin-version": "^2.2.36",
+    "@oclif/plugin-warn-if-update-available": "^3.1.55"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/chai": "^4",
+    "@types/debug": "^4.1.12",
     "@types/mocha": "^10",
     "@types/node": "^18",
     "chai": "^4",
@@ -50,9 +57,19 @@
     "bin": "oclifLearn",
     "dirname": "oclifLearn",
     "commands": "./dist/commands",
+    "hooks": {
+      "init": "./dist/hooks/init",
+      "prerun": "./dist/hooks/prerun",
+      "postrun": "./dist/hooks/postrun"
+    },
     "plugins": [
       "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-plugins",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available",
+      "@oclif/plugin-version",
+      "@oclif/plugin-update"
     ],
     "topicSeparator": " ",
     "topics": {

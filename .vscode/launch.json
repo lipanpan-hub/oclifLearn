@@ -17,6 +17,58 @@
       "runtimeArgs": ["--loader", "ts-node/esm", "--no-warnings=ExperimentalWarning"],
       "program": "${workspaceFolder}/bin/dev.js",
       "args": ["hello", "world"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: examples:debug",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm", "--no-warnings=ExperimentalWarning"],
+      "program": "${workspaceFolder}/bin/dev.js",
+      "args": ["examples:debug", "--name=调试测试"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: examples:debug (with breakpoint)",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm", "--no-warnings=ExperimentalWarning"],
+      "program": "${workspaceFolder}/bin/dev.js",
+      "args": ["examples:debug", "--breakpoint"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: examples:debug (trigger error)",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm", "--no-warnings=ExperimentalWarning"],
+      "program": "${workspaceFolder}/bin/dev.js",
+      "args": ["examples:debug", "--trigger-error"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Custom Command",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--loader", "ts-node/esm", "--no-warnings=ExperimentalWarning"],
+      "program": "${workspaceFolder}/bin/dev.js",
+      "args": ["${input:commandName}"],
+      "console": "integratedTerminal"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commandName",
+      "type": "promptString",
+      "description": "输入要调试的命令（例如: hello world 或 examples:debug --name=test）",
+      "default": "examples:debug"
     }
   ]
 }
