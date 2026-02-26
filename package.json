@@ -1,7 +1,7 @@
 {
-  "name": "oclif-learn",
+  "name": "@agentg/oclif-learn",
   "description": "A new CLI generated with oclif",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "lipanpan-hub",
   "bin": {
     "oclifLearn": "./bin/run.js",
@@ -71,5 +71,8 @@
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md"
   },
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  }
 }
