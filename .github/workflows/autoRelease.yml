@@ -1,10 +1,10 @@
 # 工作流名称：版本管理、标签创建和 GitHub Release 发布
-name: version, tag and github release
+name: autoRelease
 
 # 触发条件：当代码推送到 main 分支时自动执行
-# on:
-#   push:
-#     branches: [main]
+on:
+  push:
+    branches: [main]
 
 jobs:
   release:
@@ -64,7 +64,32 @@ jobs:
             git push -u origin ${{ github.ref_name }}
           fi
       
-      # 步骤6：创建 GitHub Release（仅在版本不存在时执行）
+      # 步骤6：构建项目（仅在版本不存在时执行）
+      - name: Build project
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: npm run build
+      
+      # 步骤7：打包 tarballs（源码包）
+      - name: Pack tarballs
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: npm run pack:tarballs
+      
+      # 步骤8：安装 Windows 打包依赖
+      - name: Install Windows packaging dependencies
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: sudo apt-get update && sudo apt-get install -y nsis p7zip-full
+      
+      # 步骤9：打包 Windows 安装包
+      - name: Pack Windows installers
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: npm run pack:win
+      
+      # 步骤10：打包 Debian 安装包
+      - name: Pack Debian packages
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: npm run pack:deb
+      
+      # 步骤11：创建 GitHub Release 并上传所有安装包（仅在版本不存在时执行）
       - name: Create Github Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
@@ -74,3 +99,4 @@ jobs:
           commit: ${{ github.ref_name }} # 关联的提交分支
           token: ${{ secrets.GH_TOKEN }} # GitHub Token
           skipIfReleaseExists: true # 如果 Release 已存在则跳过
+          artifacts: "dist/*.tar.gz,dist/*.tar.xz,dist/win32*/*.exe,dist/deb/*.deb" # 上传所有打包文件
