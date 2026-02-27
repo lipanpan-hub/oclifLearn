@@ -109,7 +109,7 @@ jobs:
             commit_message=$(git log --pretty=format:"- %s%n%b" --reverse)
           else
             # 获取从上一个标签到当前的所有 commit
-            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" --reverse)
+            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" )
           fi
           
           # 将 commit message 保存到输出变量（处理多行文本）
