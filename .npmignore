@@ -1,0 +1,15 @@
+*-debug.log
+*-error.log
+**/.DS_Store
+/.idea
+/.vscode
+/.github
+/.kiro
+/src
+/test
+/tmp
+*.tsbuildinfo
+.mocharc.json
+.prettierrc.json
+eslint.config.mjs
+tsconfig.json

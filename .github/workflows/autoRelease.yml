@@ -69,27 +69,34 @@ jobs:
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run build
       
-      # 步骤7：打包 tarballs（源码包）
-      - name: Pack tarballs
+      # 步骤7：清理临时文件和缓存
+      - name: Clean temporary files
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
-        run: npm run pack:tarballs
+        run: |
+          rm -rf tmp
+          npm cache clean --force
       
-      # 步骤8：安装 Windows 打包依赖
+      # 步骤8：打包 tarballs（源码包）
+      # - name: Pack tarballs
+      #   if: ${{ steps.version-check.outputs.skipped == 'false' }}
+      #   run: npm run pack:tarballs
+      
+      # 步骤9：安装 Windows 打包依赖
       - name: Install Windows packaging dependencies
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: sudo apt-get update && sudo apt-get install -y nsis p7zip-full
       
-      # 步骤9：打包 Windows 安装包
+      # 步骤10：打包 Windows 安装包
       - name: Pack Windows installers
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run pack:win
       
-      # 步骤10：打包 Debian 安装包
+      # 步骤11：打包 Debian 安装包
       - name: Pack Debian packages
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run pack:deb
       
-      # 步骤11：创建 GitHub Release 并上传所有安装包（仅在版本不存在时执行）
+      # 步骤12：创建 GitHub Release 并上传所有安装包（仅在版本不存在时执行）
       - name: Create Github Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
