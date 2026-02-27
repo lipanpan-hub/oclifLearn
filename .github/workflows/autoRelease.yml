@@ -96,7 +96,28 @@ jobs:
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run pack:deb
       
-      # 步骤12：创建 GitHub Release 并上传所有安装包（仅在版本不存在时执行）
+      # 步骤12：生成 Release Notes（从上一个 release 到当前的所有 commit message）
+      - name: Generate Release Notes
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        id: release-notes
+        run: |
+          # 获取最新的 release 标签
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -z "$latest_tag" ]; then
+            # 如果没有任何标签，获取所有 commit
+            commit_message=$(git log --pretty=format:"- %s%n%b" --reverse)
+          else
+            # 获取从上一个标签到当前的所有 commit
+            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" --reverse)
+          fi
+          
+          # 将 commit message 保存到输出变量（处理多行文本）
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$commit_message" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      # 步骤13：创建 GitHub Release 并上传所有安装包（仅在版本不存在时执行）
       - name: Create Github Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
@@ -107,3 +128,4 @@ jobs:
           token: ${{ secrets.GH_TOKEN }} # GitHub Token
           skipIfReleaseExists: true # 如果 Release 已存在则跳过
           artifacts: "dist/*.tar.gz,dist/*.tar.xz,dist/win32*/*.exe,dist/deb/*.deb" # 上传所有打包文件
+          body: ${{ steps.release-notes.outputs.notes }} # 使用 commit message 作为 release notes
