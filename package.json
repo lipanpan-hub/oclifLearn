@@ -54,7 +54,7 @@
   "main": "dist/index.js",
   "type": "module",
   "oclif": {
-    "bin": "oclifLearn",
+    "bin": "ofl",
     "dirname": "oclifLearn",
     "commands": "./dist/commands",
     "hooks": {
