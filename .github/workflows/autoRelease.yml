@@ -84,7 +84,7 @@ jobs:
       # 步骤9：安装 Windows 打包依赖
       - name: Install Windows packaging dependencies
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
-        run: sudo apt-get update && sudo apt-get install -y p7zip-full zlib1g-dev libc6-dev build-essential mingw-w32 gcc-mingw-w64-i686 g++-mingw-w64-i686 libz-mingw-w64-dev
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full zlib1g-dev libc6-dev build-essential gcc-mingw-w64-i686 g++-mingw-w64-i686 libz-mingw-w64-dev
 
       # 步骤10：下载并编译 NSIS
       - name: 下载NSIS源码包并编译
