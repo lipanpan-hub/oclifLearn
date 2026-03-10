@@ -89,6 +89,7 @@
     "version": "oclif readme && git add README.md",
     "pack:tarballs": "oclif pack tarballs",
     "pack:win": "oclif pack win",
+    "pack:win-tarball": "oclif pack tarballs --targets win32-x64,win32-x86,win32-arm64",
     "pack:macos": "oclif pack macos",
     "pack:deb": "oclif pack deb"
   },

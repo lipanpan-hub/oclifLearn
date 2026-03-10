@@ -84,14 +84,33 @@ jobs:
       # 步骤9：安装 Windows 打包依赖
       - name: Install Windows packaging dependencies
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
-        run: sudo apt-get update && sudo apt-get install -y nsis p7zip-full
-      
-      # 步骤10：打包 Windows 安装包
+        run: sudo apt-get update && sudo apt-get install -y p7zip-full zlib1g-dev libc6-dev build-essential mingw-w32 gcc-mingw-w64-i686 g++-mingw-w64-i686 libz-mingw-w64-dev
+
+      # 步骤10：下载并编译 NSIS
+      - name: 下载NSIS源码包并编译
+        if: ${{ steps.version-check.outputs.skipped == 'false' }}
+        run: |
+          # 安装 SCons 构建工具
+          sudo apt-get install -y scons
+          # 下载 NSIS 源码包
+          wget -O nsis-3.11-src.tar.bz2 https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-src.tar.bz2/download
+          # 解压源码包
+          tar -xjf nsis-3.11-src.tar.bz2
+          cd nsis-3.11-src
+          # 编译 NSIS 编译器
+          sudo scons NSIS_MAX_STRLEN=8192 PREFIX=/usr/local ZLIB_W32=/usr/i686-w64-mingw32 install-compiler
+          # 安装 NSIS
+          sudo scons NSIS_MAX_STRLEN=8192 PREFIX=/usr/local ZLIB_W32=/usr/i686-w64-mingw32 install
+          cd ..
+          # 验证安装
+          makensis -VERSION
+
+      # 步骤11：打包 Windows 安装包
       - name: Pack Windows installers
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run pack:win
       
-      # 步骤11：打包 Debian 安装包
+      # 步骤12：打包 Debian 安装包
       - name: Pack Debian packages
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: npm run pack:deb
