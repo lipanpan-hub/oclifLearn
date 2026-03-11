@@ -45,5 +45,6 @@
         "**/.git": true
     },
     "workbench.tree.indent": 20,
-    "editor.minimap.maxColumn": 40
+    "editor.minimap.maxColumn": 40,
+    "git.followTagsWhenSync": true
 }
