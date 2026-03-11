@@ -29,13 +29,16 @@ jobs:
       # 步骤4：构建项目（编译 TypeScript 代码）
       - run: npm run build
       
-      # 步骤5：执行打包前的准备工作（生成 oclif manifest 等）
+      # 步骤5：临时安装 CLI 到系统（使 ofl 命令可用）
+      - run: npm link
+      
+      # 步骤6：执行打包前的准备工作（生成 oclif manifest 等）
       - run: npm run prepack
       
-      # 步骤6：发布到 NPM 仓库（使用 Trusted Publishing，自动生成 provenance）
+      # 步骤7：发布到 NPM 仓库（使用 Trusted Publishing，自动生成 provenance）
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
-      # 步骤7：执行打包后的清理工作
+      # 步骤8：执行打包后的清理工作
       - run: npm run postpack
