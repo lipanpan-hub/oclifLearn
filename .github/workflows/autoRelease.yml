@@ -120,15 +120,15 @@ jobs:
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         id: release-notes
         run: |
-          # 获取最新的 release 标签
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          # 获取所有标签并排序，找到最新的标签
+          latest_tag=$(git tag --sort=-version:refname | head -1)
           
           if [ -z "$latest_tag" ]; then
             # 如果没有任何标签，获取所有 commit
             commit_message=$(git log --pretty=format:"- %s%n%b" --reverse)
           else
-            # 获取从上一个标签到当前的所有 commit
-            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" )
+            # 获取从上一个标签到当前的所有 commit（排除自动生成的 README 更新）
+            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" | grep -v "^- chore: update README.md$" || echo "")
           fi
           
           # 将 commit message 保存到输出变量（处理多行文本）
