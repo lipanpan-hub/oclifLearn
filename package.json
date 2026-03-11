@@ -1,7 +1,7 @@
 {
   "name": "@agentg/oclif-learn",
   "description": "A new CLI generated with oclif",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "author": "lipanpan-hub",
   "bin": {
     "oclifLearn": "./bin/run.js",
