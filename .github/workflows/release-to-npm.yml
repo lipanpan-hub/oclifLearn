@@ -5,10 +5,14 @@ name: publish
 on:
   release:
     types: [released]
+  workflow_dispatch:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest # 使用 Ubuntu 最新版本作为运行环境
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # 必需：用于 NPM Trusted Publishing 的 OIDC token
     steps:
       # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
@@ -17,6 +21,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: latest
+          registry-url: 'https://registry.npmjs.org'
       
       # 步骤3：安装项目依赖
       - run: npm install
@@ -27,10 +32,10 @@ jobs:
       # 步骤5：执行打包前的准备工作（生成 oclif manifest 等）
       - run: npm run prepack
       
-      # 步骤6：发布到 NPM 仓库
-      - uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c
-        with:
-          token: ${{ secrets.NPM_TOKEN }} # 使用 NPM Token 进行认证
+      # 步骤6：发布到 NPM 仓库（使用 Trusted Publishing，自动生成 provenance）
+      - run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       # 步骤7：执行打包后的清理工作
       - run: npm run postpack

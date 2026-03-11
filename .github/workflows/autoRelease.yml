@@ -1,10 +1,11 @@
 # 工作流名称：版本管理、标签创建和 GitHub Release 发布
 name: autoRelease
 
-# 触发条件：当代码推送到 main 分支时自动执行
+# 触发条件：当代码推送到 main 分支时自动执行，或手动触发
 on:
   push:
     branches: [main]
+  workflow_dispatch: # 允许手动触发工作流
 
 jobs:
   release:
@@ -12,6 +13,8 @@ jobs:
     steps:
       # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 获取完整的 git 历史记录，包括所有 tags
       
       # 步骤2：设置 Node.js 环境
       - uses: actions/setup-node@v4
@@ -131,8 +134,14 @@ jobs:
             latest_tag=$(echo "$latest_release" | jq -r '.tag_name')
             echo "Latest release tag: $latest_tag"
             
-            # 获取从上一个 release tag 到当前的所有 commit（排除自动生成的 README 更新）
-            commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" | grep -v "^- chore: update README.md$" || echo "")
+            # 验证 tag 是否存在
+            if git rev-parse "$latest_tag" >/dev/null 2>&1; then
+              # 获取从上一个 release tag 到当前的所有 commit（排除自动生成的 README 更新）
+              commit_message=$(git log ${latest_tag}..HEAD --pretty=format:"- %s%n%b" | grep -v "^- chore: update README.md$" || echo "")
+            else
+              echo "Warning: Tag $latest_tag not found in local repository, fetching all commits"
+              commit_message=$(git log --pretty=format:"- %s%n%b" --reverse)
+            fi
           fi
           
           # 将 commit message 保存到输出变量（处理多行文本）
