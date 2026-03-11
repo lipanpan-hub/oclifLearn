@@ -17,10 +17,10 @@ jobs:
       # 步骤1：检出代码仓库
       - uses: actions/checkout@v4
       
-      # 步骤2：设置 Node.js 环境，使用最新版本
+      # 步骤2：设置 Node.js 环境，使用最新的 LTS 版本
       - uses: actions/setup-node@v4
         with:
-          node-version: latest
+          node-version: lts/*
           registry-url: 'https://registry.npmjs.org'
       
       # 步骤3：安装项目依赖
