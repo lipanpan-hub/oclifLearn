@@ -9,9 +9,8 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 
 // #region 配置接口定义
-/**
- * 应用配置接口
- */
+
+// 应用配置接口
 export interface AppConfig {
   // 用户信息
   user: {
@@ -31,9 +30,8 @@ export interface AppConfig {
   }
 }
 
-/**
- * 默认配置
- */
+
+// 默认配置
 const DEFAULT_CONFIG: AppConfig = {
   user: {
     name: '',
@@ -51,11 +49,8 @@ const DEFAULT_CONFIG: AppConfig = {
 }
 // #endregion
 
+
 // #region 配置管理器类
-/**
- * 配置管理器类
- * 负责配置的读取、写入、验证等操作
- */
 export class ConfigManager {
   private configPath: string
   private config: AppConfig
