@@ -90,7 +90,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y p7zip-full zlib1g-dev libc6-dev build-essential gcc-mingw-w64-i686 g++-mingw-w64-i686 libz-mingw-w64-dev
 
       # 步骤10：下载并编译 NSIS
-      - name: 下载NSIS源码包并编译
+      - name: Download and build NSIS from source
         if: ${{ steps.version-check.outputs.skipped == 'false' }}
         run: |
           # 安装 SCons 构建工具
