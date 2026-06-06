@@ -108,6 +108,7 @@ export default class AdvancedExample extends Command {
     })(),
     // #endregion
   }
+  // #endregion 
 
   // #region 严格模式
   /**
