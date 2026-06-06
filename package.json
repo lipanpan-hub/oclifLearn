@@ -1,26 +1,34 @@
 {
-  "name": "oclif-learn",
+  "name": "@agentg/oclif-learn",
   "description": "A new CLI generated with oclif",
-  "version": "0.0.0",
+  "version": "0.0.21",
   "author": "lipanpan-hub",
   "bin": {
     "oclifLearn": "./bin/run.js",
-    "ofl": "./bin/run.js"
+    "ofl": "./bin/run.js",
+    "ofld": "./bin/dev.js"
   },
   "bugs": "https://github.com/lipanpan-hub/oclifLearn/issues",
   "dependencies": {
     "@inquirer/prompts": "^8.3.0",
     "@oclif/core": "^4",
+    "@oclif/plugin-autocomplete": "^3.2.40",
     "@oclif/plugin-help": "^6",
-    "@oclif/plugin-plugins": "^5"
+    "@oclif/plugin-not-found": "^3.2.74",
+    "@oclif/plugin-plugins": "^5",
+    "@oclif/plugin-update": "^4.7.19",
+    "@oclif/plugin-version": "^2.2.36",
+    "@oclif/plugin-warn-if-update-available": "^3.1.55"
   },
   "devDependencies": {
     "@eslint/compat": "^1",
     "@oclif/prettier-config": "^0.2.1",
     "@oclif/test": "^4",
     "@types/chai": "^4",
+    "@types/debug": "^4.1.12",
     "@types/mocha": "^10",
     "@types/node": "^18",
+    "@types/sinon": "^21.0.0",
     "chai": "^4",
     "eslint": "^9",
     "eslint-config-oclif": "^6",
@@ -28,6 +36,7 @@
     "mocha": "^10",
     "oclif": "^4",
     "shx": "^0.3.3",
+    "sinon": "^21.0.3",
     "ts-node": "^10",
     "typescript": "^5"
   },
@@ -47,12 +56,22 @@
   "main": "dist/index.js",
   "type": "module",
   "oclif": {
-    "bin": "oclifLearn",
+    "bin": "ofl",
     "dirname": "oclifLearn",
     "commands": "./dist/commands",
+    "hooks": {
+      "init": "./dist/hooks/init",
+      "prerun": "./dist/hooks/prerun",
+      "postrun": "./dist/hooks/postrun"
+    },
     "plugins": [
       "@oclif/plugin-help",
-      "@oclif/plugin-plugins"
+      "@oclif/plugin-plugins",
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available",
+      "@oclif/plugin-version",
+      "@oclif/plugin-update"
     ],
     "topicSeparator": " ",
     "topics": {
@@ -69,7 +88,15 @@
     "posttest": "npm run lint",
     "prepack": "oclif manifest && oclif readme",
     "test": "mocha --forbid-only \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md"
+    "version": "oclif readme && git add README.md",
+    "pack:tarballs": "oclif pack tarballs",
+    "pack:win": "oclif pack win",
+    "pack:win-tarball": "oclif pack tarballs --targets win32-x64,win32-x86,win32-arm64",
+    "pack:macos": "oclif pack macos",
+    "pack:deb": "oclif pack deb"
   },
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  }
 }
