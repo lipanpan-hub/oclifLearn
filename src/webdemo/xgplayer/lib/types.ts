@@ -1,8 +1,16 @@
+export interface SubtitleWord {
+  text: string
+  startTime: number
+  endTime: number
+}
+
 export interface SubtitleCue {
   id: string
   startTime: number
   endTime: number
   text: string
+  speaker?: string
+  words: SubtitleWord[]
 }
 
 export interface MediaFile {

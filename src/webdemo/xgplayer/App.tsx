@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import Player from 'xgplayer'
 import 'xgplayer/dist/index.min.css'
 import type { SubtitleCue, MediaFile, FileGroup } from './lib/types'
@@ -6,19 +6,28 @@ import { parseVTT } from './lib/utils'
 import { dbGetAll, dbPut } from './lib/db'
 import FileTree from './components/FileTree'
 import SubtitlePanel from './components/SubtitlePanel'
+import AudioPlayer, { type AudioPlayerHandle } from './components/AudioPlayer'
 
 export default function App() {
   const playerContainerRef = useRef<HTMLDivElement>(null)
   const playerRef = useRef<Player | null>(null)
+  const audioPlayerRef = useRef<AudioPlayerHandle>(null)
 
-  const [videoUrl, setVideoUrl] = useState('')
+  const [mediaUrl, setMediaUrl] = useState('')
+  const [mediaKind, setMediaKind] = useState<'video' | 'audio' | ''>('')
   const [subtitles, setSubtitles] = useState<SubtitleCue[]>([])
-  const [activeCueIndex, setActiveCueIndex] = useState(-1)
+  const [currentTime, setCurrentTime] = useState(0)
   const [activeFileName, setActiveFileName] = useState('')
 
   const [groups, setGroups] = useState<FileGroup[]>([])
   const [files, setFiles] = useState<MediaFile[]>([])
   const [activeFileId, setActiveFileId] = useState('')
+
+  // 当前高亮字幕索引由播放时间派生, 驱动音字同步与逐词高亮
+  const activeCueIndex = useMemo(
+    () => subtitles.findIndex((c) => currentTime >= c.startTime && currentTime < c.endTime),
+    [currentTime, subtitles]
+  )
 
   // #region 初始化加载 IndexedDB 数据
   useEffect(() => {
@@ -38,47 +47,41 @@ export default function App() {
   // #endregion
 
   // #region 文件选择与播放
+  const loadGroupSubtitle = useCallback(async (groupId: string) => {
+    const sub = files.find((f) => f.groupId === groupId && f.type === 'subtitle')
+    setSubtitles(sub ? parseVTT(await sub.blob.text()) : [])
+  }, [files])
+
   const handleSelectFile = useCallback(async (file: MediaFile) => {
     if (file.type === 'subtitle') {
-      const text = await file.blob.text()
-      setSubtitles(parseVTT(text))
-      setActiveCueIndex(-1)
+      setSubtitles(parseVTT(await file.blob.text()))
       return
     }
-    if (videoUrl) URL.revokeObjectURL(videoUrl)
-    const url = URL.createObjectURL(file.blob)
-    setVideoUrl(url)
+    if (mediaUrl) URL.revokeObjectURL(mediaUrl)
+    setMediaUrl(URL.createObjectURL(file.blob))
+    setMediaKind(file.type)
     setActiveFileId(file.id)
     setActiveFileName(file.name)
-    // 自动加载同组字幕
-    const groupSubtitle = files.find((f) => f.groupId === file.groupId && f.type === 'subtitle')
-    if (groupSubtitle) {
-      const text = await groupSubtitle.blob.text()
-      setSubtitles(parseVTT(text))
-      setActiveCueIndex(-1)
-    } else {
-      setSubtitles([])
-    }
-  }, [videoUrl, files])
+    setCurrentTime(0)
+    await loadGroupSubtitle(file.groupId)
+  }, [mediaUrl, loadGroupSubtitle])
 
   const handleDeleteActiveFile = useCallback(() => {
     setActiveFileId('')
-    setVideoUrl('')
+    setMediaUrl('')
+    setMediaKind('')
     setSubtitles([])
     setActiveFileName('')
+    setCurrentTime(0)
   }, [])
   // #endregion
 
-  // #region 播放器初始化与销毁
+  // #region 视频播放器初始化(xgplayer) + rAF 上报进度
   useEffect(() => {
-    if (!videoUrl || !playerContainerRef.current) return
-    if (playerRef.current) {
-      playerRef.current.destroy()
-      playerRef.current = null
-    }
+    if (mediaKind !== 'video' || !mediaUrl || !playerContainerRef.current) return
     const player = new Player({
       el: playerContainerRef.current,
-      url: videoUrl,
+      url: mediaUrl,
       width: '100%',
       height: '100%',
       lang: 'zh',
@@ -88,33 +91,34 @@ export default function App() {
       closeVideoDblclick: false,
     })
     playerRef.current = player
+
+    let raf = 0
+    const loop = () => {
+      setCurrentTime(player.currentTime)
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+
     return () => {
+      cancelAnimationFrame(raf)
       player.destroy()
       playerRef.current = null
     }
-  }, [videoUrl])
+  }, [mediaKind, mediaUrl])
   // #endregion
 
-  // #region 字幕同步
-  useEffect(() => {
-    const player = playerRef.current
-    if (!player || subtitles.length === 0) return
-    const onTimeUpdate = () => {
-      const idx = subtitles.findIndex(
-        (cue) => player.currentTime >= cue.startTime && player.currentTime < cue.endTime
-      )
-      setActiveCueIndex(idx)
-    }
-    player.on('timeupdate', onTimeUpdate)
-    return () => { player.off('timeupdate', onTimeUpdate) }
-  }, [subtitles])
-
+  // #region 音字同步定位: 点击文字跳转进度
   const handleCueClick = useCallback((cue: SubtitleCue) => {
-    const player = playerRef.current
-    if (!player) return
-    player.currentTime = cue.startTime
-    if (player.paused) player.play()
-  }, [])
+    if (mediaKind === 'audio') {
+      audioPlayerRef.current?.seek(cue.startTime)
+      audioPlayerRef.current?.play()
+    } else {
+      const player = playerRef.current
+      if (!player) return
+      player.currentTime = cue.startTime
+      if (player.paused) player.play()
+    }
+  }, [mediaKind])
   // #endregion
 
   return (
@@ -135,22 +139,44 @@ export default function App() {
           onDeleteActiveFile={handleDeleteActiveFile}
         />
 
-        <div style={styles.playerPanel}>
-          {videoUrl ? (
-            <div ref={playerContainerRef} style={styles.playerWrapper} />
-          ) : (
-            <div style={styles.placeholder}>
-              <p style={{ fontSize: 48, margin: 0 }}>🎬</p>
-              <p>从左侧媒体库选择文件播放</p>
+        {mediaKind === 'audio' ? (
+          // 音频模式: 顶部进度条 + 下方逐字稿
+          <div style={styles.audioLayout}>
+            <AudioPlayer
+              ref={audioPlayerRef}
+              url={mediaUrl}
+              name={activeFileName}
+              onTimeUpdate={setCurrentTime}
+            />
+            <SubtitlePanel
+              subtitles={subtitles}
+              activeCueIndex={activeCueIndex}
+              currentTime={currentTime}
+              onCueClick={handleCueClick}
+              fullWidth
+            />
+          </div>
+        ) : (
+          // 视频模式: 播放器 + 右侧逐字稿
+          <>
+            <div style={styles.playerPanel}>
+              {mediaKind === 'video' ? (
+                <div ref={playerContainerRef} style={styles.playerWrapper} />
+              ) : (
+                <div style={styles.placeholder}>
+                  <p style={{ fontSize: 48, margin: 0 }}>🎬</p>
+                  <p>从左侧媒体库选择文件播放</p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        <SubtitlePanel
-          subtitles={subtitles}
-          activeCueIndex={activeCueIndex}
-          onCueClick={handleCueClick}
-        />
+            <SubtitlePanel
+              subtitles={subtitles}
+              activeCueIndex={activeCueIndex}
+              currentTime={currentTime}
+              onCueClick={handleCueClick}
+            />
+          </>
+        )}
       </div>
     </div>
   )
@@ -179,6 +205,13 @@ const styles: Record<string, React.CSSProperties> = {
   title: { fontSize: 18, fontWeight: 600, margin: 0, color: '#1a1a1a' },
   fileName: { fontSize: 13, color: '#666' },
   main: { display: 'flex', flex: 1, overflow: 'hidden' },
+  audioLayout: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    minWidth: 0,
+    background: '#fff',
+  },
   playerPanel: {
     flex: 1,
     display: 'flex',
