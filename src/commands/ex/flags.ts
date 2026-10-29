@@ -174,6 +174,7 @@ export default class FlagsExample extends Command {
       this.log(`密码: ${'*'.repeat(flags.password.length)}`)
     }
 
+    this.log(`${flags.json} and ${flags.yaml}`)
     if (flags.json) {
       this.log('\n以 JSON 格式输出')
     } else if (flags.yaml) {
